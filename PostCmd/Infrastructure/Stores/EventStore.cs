@@ -2,17 +2,24 @@ using CQRSCore.Domain;
 using CQRSCore.Events;
 using CQRSCore.Exceptions;
 using CQRSCore.Infrastructure;
+using CQRSCore.Producers;
 using MongoDB.Driver;
 using PostCmd.Domain.Aggregates;
+using Microsoft.Extensions.Configuration;
 
 namespace PostCmd.Infrastructure.Stores;
 
 public class EventStore : IEventStore
 {
     private readonly IEventStoreRepository _eventStoreRepository;
-    public EventStore(IEventStoreRepository eventStoreRepository)
+    private readonly IEventProducer _eventProducer;
+    private readonly IConfiguration _configuration;
+    public EventStore(IEventStoreRepository eventStoreRepository, IEventProducer eventProducer,
+        IConfiguration configuration)
     {
         _eventStoreRepository = eventStoreRepository;
+        _eventProducer = eventProducer;
+        _configuration = configuration;
     }
     public async Task<List<BaseEvent>> GetEventsAsync(Guid aggregateId)
     {
@@ -47,6 +54,8 @@ public class EventStore : IEventStore
                 EventData = _event
             };
             await _eventStoreRepository.SaveAsync(eventModel);
+            var topic = _configuration.GetValue<string>("Kafka_Topic");
+            await _eventProducer.ProduceAsync(topic, _event);
         }
     }
 }

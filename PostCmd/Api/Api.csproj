@@ -7,10 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.7.3" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="../../CQRSCore/CQRSCore.csproj" />
     <ProjectReference Include="../../PostCommon/PostCommon.csproj" />
     <ProjectReference Include="../Domain/Domain.csproj" />

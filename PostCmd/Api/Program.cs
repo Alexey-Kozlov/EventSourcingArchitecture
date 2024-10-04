@@ -1,19 +1,24 @@
+using Confluent.Kafka;
 using CQRSCore.Domain;
 using CQRSCore.Handlers;
 using CQRSCore.Infrastructure;
+using CQRSCore.Producers;
 using PostCmd.Api.Commands;
 using PostCmd.Domain.Aggregates;
 using PostCmd.Infrastructure;
 using PostCmd.Infrastructure.Config;
 using PostCmd.Infrastructure.Handlers;
+using PostCmd.Infrastructure.Producers;
 using PostCmd.Infrastructure.Repositories;
 using PostCmd.Infrastructure.Stores;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.Configure<MongoDbConfig>(builder.Configuration.GetSection(nameof(MongoDbConfig)));
+builder.Services.Configure<ProducerConfig>(builder.Configuration.GetSection(nameof(ProducerConfig)));
 builder.Services.AddScoped<IEventStoreRepository, EventStoreRepository>();
 builder.Services.AddScoped<IEventStore, EventStore>();
+builder.Services.AddScoped<IEventProducer, EventProducer>();
 builder.Services.AddScoped<IEventSourceHandler<PostAggregates>, EventSourceHandler>();
 builder.Services.AddScoped<ICommandHandler, CommandHandler>();
 builder.Services.AddControllers();
@@ -35,14 +40,6 @@ builder.Services.AddSingleton<ICommandDispatcher>(_ => dispatcher);
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-
-app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
