@@ -60,4 +60,9 @@ public class CommandHandler : ICommandHandler
         aggregate.DeletePost(command.UserName);
         await _eventSourceHandler.SaveAsync(aggregate);
     }
+
+    public async Task HandlerAsync(RestoreReadDbCommand command)
+    {
+        await _eventSourceHandler.RepublishEventsAsync();
+    }
 }

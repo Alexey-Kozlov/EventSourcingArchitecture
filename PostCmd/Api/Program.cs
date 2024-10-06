@@ -1,8 +1,10 @@
 using Confluent.Kafka;
 using CQRSCore.Domain;
+using CQRSCore.Events;
 using CQRSCore.Handlers;
 using CQRSCore.Infrastructure;
 using CQRSCore.Producers;
+using MongoDB.Bson.Serialization;
 using PostCmd.Api.Commands;
 using PostCmd.Domain.Aggregates;
 using PostCmd.Infrastructure;
@@ -11,8 +13,18 @@ using PostCmd.Infrastructure.Handlers;
 using PostCmd.Infrastructure.Producers;
 using PostCmd.Infrastructure.Repositories;
 using PostCmd.Infrastructure.Stores;
+using PostCommon.Events;
 
 var builder = WebApplication.CreateBuilder(args);
+
+BsonClassMap.RegisterClassMap<BaseEvent>();
+BsonClassMap.RegisterClassMap<PostCreatedEvent>();
+BsonClassMap.RegisterClassMap<MessageUpdatedEvent>();
+BsonClassMap.RegisterClassMap<PostLikedEvent>();
+BsonClassMap.RegisterClassMap<CommentAddedEvent>();
+BsonClassMap.RegisterClassMap<CommentDeletedEvent>();
+BsonClassMap.RegisterClassMap<CommentUpdatedEvent>();
+BsonClassMap.RegisterClassMap<PostDeletedEvent>();
 
 builder.Services.Configure<MongoDbConfig>(builder.Configuration.GetSection(nameof(MongoDbConfig)));
 builder.Services.Configure<ProducerConfig>(builder.Configuration.GetSection(nameof(ProducerConfig)));
@@ -36,6 +48,7 @@ dispatcher.RegisterHandler<AddCommentCommand>(commandHandler.HandlerAsync);
 dispatcher.RegisterHandler<EditCommentCommand>(commandHandler.HandlerAsync);
 dispatcher.RegisterHandler<DeleteCommentCommand>(commandHandler.HandlerAsync);
 dispatcher.RegisterHandler<DeletePostCommand>(commandHandler.HandlerAsync);
+dispatcher.RegisterHandler<RestoreReadDbCommand>(commandHandler.HandlerAsync);
 builder.Services.AddSingleton<ICommandDispatcher>(_ => dispatcher);
 
 var app = builder.Build();

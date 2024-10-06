@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PostQuery.Domain.Entities;
 
-[Table("Comment")]
+[Table("Comment", Schema = "dbo")]
 public class Comment
 {
     [Key]
